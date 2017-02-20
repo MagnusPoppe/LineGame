@@ -6,7 +6,7 @@ using System;
 
 namespace Game.Generator 
 {
-    public class GameCreator : MonoBehaviour 
+    public class GameManager : MonoBehaviour 
 	{
         // Map variables:
         public int width = 72;
@@ -28,15 +28,37 @@ namespace Game.Generator
         // Use this for initialization
         void Start () 
         {
-            // Place random points in grid.
-            Vector2[] points = GeneratePoints(seed);
-
-            GraphicsCreator graphics = new GraphicsCreator(circle, background, lineMaterial);
-            // Draw nessesary objects:
-            BG = graphics.DrawBackground(width, height);
-            circles = graphics.DrawCircles(points);
-            lines = graphics.DrawLines(circles);
+			
         }
+
+		public void NextLevel(int level)
+		{
+			if (BG != null) 
+			{
+				Destroy(BG);
+			}
+			if (circles != null)
+			{
+				for (int i = 0; i < circles.Length; i++)
+				{
+					Destroy(lines[i]);
+				}
+				for (int i = 0; i < circles.Length; i++)
+				{
+					Destroy(circles[i]);
+				}
+			}
+			// Place random points in grid.
+			circleCount += 1;
+			Vector2[] points = GeneratePoints(seed);
+
+			GraphicsCreator graphics = new GraphicsCreator(circle, background, lineMaterial);
+
+			// Draw nessesary objects:
+			BG = graphics.DrawBackground(width, height);
+			circles = graphics.AddCircles(points);
+			lines = graphics.AddLines(circles);
+		}
 
   
 

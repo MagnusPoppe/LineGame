@@ -12,20 +12,26 @@ namespace Game
 		private bool heldWithMouse;
 		private bool levelIsWon;
 
-		private GameCreator game;
-		private GameObject MapGenerator;
+		private GameManager game;
 		private GameObject graphics;
 
 		private GameObject held;
 		private GameObject[] childLines;
 
-		public int level;
+		[Range(0, 15)] 
+		public int level = 1;
+
+		public bool canWin = false;
 
 		// Use this for initialization
 		void Start()
 		{
-			MapGenerator = GameObject.Find("MapGenerator");
-			game = MapGenerator.GetComponent<GameCreator>();
+			GameObject GameManager = GameObject.Find("GameManager");
+			game = GameManager.GetComponent<GameManager>();
+
+			level = 0;
+
+			game.NextLevel(level);
 			FindIntersections();
 			heldWithMouse = false;
 			levelIsWon = false;
@@ -38,7 +44,7 @@ namespace Game
 			{
 				Debug.Log("You beat level "+level+"!");
 
-				//Game.NextLevel();
+				game.NextLevel(++level);
 
 				levelIsWon = false;
 			}
@@ -63,9 +69,16 @@ namespace Game
 
 			if (heldWithMouse) // HVA SKJER NÅR MAN HOLDER ET OBJEKT?
 			{
-				correctLinePositions(GetMouseWorld2DPosition(), held.transform.position);
-				held.transform.position = GetMouseWorld2DPosition();
-				FindIntersections();
+				if (held != null)
+				{
+					correctLinePositions(GetMouseWorld2DPosition(), held.transform.position);
+					held.transform.position = GetMouseWorld2DPosition();
+					FindIntersections();
+				}
+				else
+				{
+					heldWithMouse = false;
+				}
 			}
 		}
 
@@ -135,7 +148,9 @@ namespace Game
 				}
 			}
 
-			if (intersectCounter == 0) levelIsWon = true;
+			if (canWin)
+				if (intersectCounter == 0) 
+					levelIsWon = true;
 		}
 
 
@@ -180,8 +195,8 @@ namespace Game
 			string numbering = GameObjectName.Substring(6, 1);
 			int number = int.Parse(numbering);
 
-			GameObject map = GameObject.Find("MapGenerator");
-			GameCreator gg = map.GetComponent<GameCreator>();
+			GameObject map = GameObject.Find("GameManager");
+			GameManager gg = map.GetComponent<GameManager>();
 
 			int prev = number - 1;
 
