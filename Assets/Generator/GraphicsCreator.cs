@@ -1,15 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Generator
+namespace Game.Generator
 {
     public class GraphicsCreator
     {
 
         // Layers:
-        const int LAYER_BACKGROUND = 8;
-        const int LAYER_LINE = 9;
-        const int LAYER_CIRCLE = 10;
+        public const int LAYER_BACKGROUND = 8;
+        public const int LAYER_LINE = 9;
+        public const int LAYER_CIRCLE = 10;
 		public const float CIRCLE_RADIUS = 5.0f;
 
         Sprite circle;
@@ -116,14 +116,10 @@ namespace Generator
                 l.material = lineMaterial;
                 l.startColor = Color.green;
                 l.endColor = Color.green;
-				l.useWorldSpace = true;
-
-                BoxCollider2D collider = lines[i-1].AddComponent<BoxCollider2D>();
-                collider.transform.position = GetLineCenter(pos[0], pos[1]);
-
             }
             return lines;
         }
+
         Vector2 GetLineCenter(Vector3 from, Vector3 to)
         {
             return new Vector2(

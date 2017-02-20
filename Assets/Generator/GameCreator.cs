@@ -4,12 +4,10 @@ using UnityEngine;
 
 using System;
 
-namespace Generator 
+namespace Game.Generator 
 {
     public class GameCreator : MonoBehaviour 
-    {
-        
-        
+	{
         // Map variables:
         public int width = 72;
         public int height = 128;
@@ -40,7 +38,9 @@ namespace Generator
             lines = graphics.DrawLines(circles);
         }
 
-        /// <summary>
+  
+
+		/// <summary>
         /// Generates the points to place circles at random using
         /// a given seed.
         /// </summary>
@@ -55,9 +55,6 @@ namespace Generator
             }
             return points;
         }
-
-
-
     }    
 }
 

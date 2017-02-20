@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Generator
+namespace Game.Generator
 {
     public class Controller : MonoBehaviour 
     {
