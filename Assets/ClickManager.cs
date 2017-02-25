@@ -14,19 +14,22 @@ namespace Game
 		public bool colorcodeLines = true;
 		public ColorSchema colorSchema;
 
+		// Variables to play the game.
 		private bool heldWithMouse;
 		private bool levelIsWon;
-
 		private GameManager game;
 		private GameObject graphics;
 		private Camera mainCamera;
-
-		private GameObject held;
-		private GameObject[] childLines;
+		private Pkt held;
 
 		[Range(0, 15)] 
 		public int level = 1;
 		public bool canWin = false;
+
+		// Sprites: 
+		public Sprite lightCircle;
+		public Sprite darkCircle;
+		public Material lineMaterial;
 
 		public Text Level_Number_Text;
 		public Text Level_Text_Text;
@@ -35,16 +38,17 @@ namespace Game
 		void Start()
 		{
 			mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-			game  = GameObject.Find("GameManager").GetComponent<GameManager>();
 
+			// Setting the colors
 			colorSchema = new ColorSchema(PRE_DEFINED_SCHEMA, colorcodeLines);
-			//game.SetColorSchema(colorSchema);
 			Level_Number_Text.color = colorSchema.Font;
 			Level_Text_Text.color = colorSchema.Font;
-
 			mainCamera.backgroundColor = colorSchema.Background;
 
+
+			// Setting up the game:
 			level = 0;
+			game = new GameManager(Level_Number_Text, darkCircle, lightCircle, lineMaterial, colorSchema);
 
 			game.NextLevel(level);
 			FindIntersections();
@@ -65,13 +69,12 @@ namespace Game
 
 			if (Input.GetMouseButtonDown(0))
 			{
-				GameObject g = IdentifyClickedItem();
+				Pkt g = IdentifyClickedItem();
 
 				if (g != null) // BRUKER TRYKKER NED KNAPP PÅ ET OBJEKT
 				{
-					g.transform.position = GetMouseWorld2DPosition();
+					g.Position = GetMouseWorld2DPosition();
 					heldWithMouse = true;
-					childLines = FindChildrenLines(g);
 					held = g;
 				}
 			}
@@ -85,8 +88,7 @@ namespace Game
 			{
 				if (held != null)
 				{
-					correctLinePositions(GetMouseWorld2DPosition(), held.transform.position);
-					held.transform.position = GetMouseWorld2DPosition();
+					held.Position = GetMouseWorld2DPosition();
 					FindIntersections();
 				}
 				else
@@ -96,31 +98,19 @@ namespace Game
 			}
 		}
 
-		/// <summary>
-		/// Finds the children lines.
-		/// </summary>
-		/// <returns>The children lines.</returns>
-		/// <param name="g">The green component.</param>
-		private GameObject[] FindChildrenLines(GameObject g)
+		private GameObject[] FindAllLines()
 		{
-			GameObject[] l = game.lines;
-			GameObject[] temp = new GameObject[l.Length];
-			int j = 0;
-			for (int i = 0; i < l.Length; i++)
+			List<GameObject> lines = new List<GameObject>();
+			for (int i = 0; i < game.Circles.Length; i++)
 			{
-				if (l[i].transform.IsChildOf(g.transform))
+				GameObject[] current = game.Circles[i].AttachedLines;
+				for (int j = 0; j < current.Length; j++)
 				{
-					temp[j++] = l[i];
+					if (!lines.Contains(current[j]))
+						lines.Add(current[j]);
 				}
 			}
-
-			// Creating childlines into a smaller table
-			// to remove nulls.
-			l = new GameObject[j];
-			for (int i = 0; i < j; i++)
-				l[i] = temp[i];
-
-			return l;
+			return lines.ToArray();
 		}
 
 		/// <summary>
@@ -128,7 +118,7 @@ namespace Game
 		/// </summary>
 		private void FindIntersections()
 		{
-			GameObject[] all = game.lines;
+			GameObject[] all = FindAllLines();
 			Line[] line = new Line[all.Length];
 
 			for (int i = 0; i < all.Length; i++)
@@ -142,6 +132,7 @@ namespace Game
 			for (int i = 0; i < line.Length; i++)
 			{
 				bool intersecting = false;
+
 				for (int j = 0; j < line.Length; j++)
 				{
 					if (i == j) continue; // Same lines.
@@ -167,7 +158,6 @@ namespace Game
 					levelIsWon = true;
 		}
 
-
 		/// <summary>
 		/// Colors the line.
 		/// </summary>
@@ -177,54 +167,6 @@ namespace Game
 		{
 			line.startColor = color;
 			line.endColor = color;
-		}
-
-		/// <summary>
-		/// Corrects the line positions to fit the circleses movement
-		/// </summary>
-		/// <param name="current">Current.</param>
-		/// <param name="corrected">Corrected.</param>
-		// TODO: Skriv om denne. Den er mest sannsynlig grunnen til den store "linjen henger igjen" bugen. 
-		private void correctLinePositions(Vector3 current, Vector3 corrected)
-		{
-			LineRenderer l;
-
-			for (int i = 0; i < childLines.Length; i++)
-			{
-				l = childLines[i].GetComponent<LineRenderer>();
-				l.SetPosition(1, corrected);
-			}
-
-			GameObject other = GetOtherLine(held.name);
-			l = other.GetComponent<LineRenderer>();
-			l.SetPosition(0, corrected);
-		}
-
-		/// <summary>
-		/// Gets the other line thats connected to the circle
-		/// </summary>
-		/// <returns>The other line.</returns>
-		/// <param name="GameObjectName">Game object name.</param>
-		private GameObject GetOtherLine(string GameObjectName)
-		{
-			string numbering = GameObjectName.Substring(6, 1);
-			int number = int.Parse(numbering);
-
-			int prev = number - 1;
-
-			if (prev < 0)
-			{
-				prev   = game.circleCount - 1;
-				number = game.circleCount;
-			}
-
-			foreach (GameObject l in game.lines)
-			{
-				if (l.name == "Line (" + prev + "->" + number + ")")
-					return l;
-			}
-
-			return GameObject.Find("Line (" + prev + "->" + number + ")");
 		}
 
 		/// <summary>
@@ -243,14 +185,14 @@ namespace Game
 		/// Identifies the clicked item.
 		/// </summary>
 		/// <returns>The clicked item.</returns>
-		private GameObject IdentifyClickedItem()
+		private Pkt IdentifyClickedItem()
 		{
 			Vector2 v2 = GetMouseWorld2DPosition();
-			GameObject[] c = game.circles;
+			Pkt[] c = game.Circles;
 
-			foreach (GameObject go in c)
-				if (clicked(go.transform.position, v2))
-					return go;
+			foreach (Pkt pkt in c)
+				if (clicked(pkt.Circle.transform.position, v2))
+					return pkt;
 
 			return null;
 		}
@@ -264,6 +206,5 @@ namespace Game
 		{
 			return Vector2.Distance(go, mouse) < GraphicsCreator.CIRCLE_RADIUS;
 		}
-
 	}
 }

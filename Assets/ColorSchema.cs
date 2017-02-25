@@ -51,7 +51,7 @@ namespace Game
 			{
 				background = new Color(42, 71, 78, 100);    // HEX = #29474E
 				circle = new Color(255, 252, 231, 100);   // HEX = #FFFDE8
-				font = new Color(255, 252, 231, 100); // HEX = #FFFCE7  
+				font = new Color(255, 252, 231, 100); // HEX = #FFFCE7  w
 				timer = new Color(255, 252, 231, 100); // HEX = #FFFCE7
 
 				// Defining color-coding for lines:

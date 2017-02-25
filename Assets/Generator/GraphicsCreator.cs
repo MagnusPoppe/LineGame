@@ -8,13 +8,13 @@ namespace Game.Generator
 
         // Layers:
         public const int LAYER_BACKGROUND = 8;
-        public const int LAYER_LINE = 9;
-        public const int LAYER_CIRCLE = 10;
+		public const int LAYER_LINE = 9;
+		public const int LAYER_CIRCLE = 10;
 		public const float CIRCLE_RADIUS = 5.0f;
 
 		Sprite circleSprite;
-        Sprite background;
-        Material lineMaterial;
+		Sprite background;
+		Material lineMaterial;
 
 		public GraphicsCreator(Sprite circle, Material line)
 		{

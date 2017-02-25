@@ -7,82 +7,60 @@ using UnityEngine.UI;
 
 namespace Game.Generator 
 {
-    public class GameManager : MonoBehaviour 
+    public class GameManager
 	{
         // Map variables:
-        public int width = 72;
-        public int height = 128;
+        const int width = 72;
+        const int height = 128;
+		string seed = "Angelica";
+		int circleCount;
 
-        // Game variables:
-        public string seed = "Angelica";
-        public int circleCount = 10;
-
-        public Sprite circle;
-        public Sprite background;
-        public Material lineMaterial;
-
-		public Text Level_Text;
-
+		// Graphical elements
+        Sprite lightCircle;
+        Sprite darkCircle;
+        Material lineMaterial;
+		Text Level_Text;
         GameObject board;
-        public GameObject[] circles;
-        public GameObject[] lines;
 
-        // Use this for initialization
-        void Start () 
-        {
-			
-        }
+		// OTHER:
+		Graphics graphics;
+		private Pkt[] circles;
 
+		public Pkt[] Circles
+		{
+			get
+			{
+				return circles;
+			}
+		}
+
+		public GameManager(Text level, Sprite darkCircle, Sprite lightCircle, Material lineMaterial, ColorSchema colors)
+		{
+			Level_Text = level;
+			this.darkCircle = darkCircle;
+			this.lightCircle = lightCircle;
+			this.lineMaterial = lineMaterial;
+
+			circleCount = 10;
+			graphics = new Graphics(lightCircle, darkCircle, lineMaterial, colors);
+		}
+
+		/// <summary>
+		/// Nexts the level.
+		/// </summary>
+		/// <param name="level">Level.</param>
 		public void NextLevel(int level)
 		{
-			ClearBoard();
+			// TODO: ClearBoard();
 
 			Level_Text.text = level + "";
-
-			// Place random points in grid.
-			circleCount += 1;
 
 			seed += (char)UnityEngine.Random.Range(0 , 128);
 			Vector2[] points = GeneratePoints(seed);
 
-			GraphicsCreator graphics = new GraphicsCreator(circle, lineMaterial);
-
 			// Draw nessesary objects:
 			circles = graphics.AddCircles(points);
-			lines = graphics.AddLines(circles);
-
-			graphics.DrawSpesificLine(0, circleCount - 1);// TODO: Virker ikke.
 		}
-
-		private void ClearBoard()
-		{
-			if (circles != null)
-			{
-				for (int i = 0; i < circles.Length; i++)
-				{
-					Destroy(lines[i]);
-				}
-				for (int i = 0; i < circles.Length; i++)
-				{
-					Destroy(circles[i]);
-				}
-			}
-		}
-
-		public void SetColorSchema(ColorSchema cs)
-		{
-			foreach (GameObject obj in circles)
-			{
-				SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
-				r.color = cs.Circle;
-			}
-			foreach (GameObject obj in lines)
-			{
-				SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
-				r.color = cs.LineClear;
-			}
-		}
-  
 
 		/// <summary>
         /// Generates the points to place circles at random using

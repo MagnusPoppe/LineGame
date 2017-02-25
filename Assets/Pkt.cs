@@ -8,7 +8,7 @@ namespace Game
 	{
 		// Information about the circle;
 		GameObject circle;
-		Vector2 position;
+		int id;
 
 		// All of the attached lines:
 		List<GameObject> attachedLines;
@@ -22,6 +22,19 @@ namespace Game
 		public Pkt(GameObject circle)
 		{
 			this.Circle = circle;
+			this.attachedLines = new List<GameObject>();
+		}
+
+		/// <summary>
+		/// Pkt is a point in the map. Its represented with a Circle sprite.
+		/// Initializes a new instance of the <see cref="T:Game.Pkt"/> class.
+		/// </summary>
+		/// <param name="circle">Circle.</param>
+		public Pkt(GameObject circle, int id)
+		{
+			this.Circle = circle;
+			this.id = id;
+			this.attachedLines = new List<GameObject>();
 		}
 
 		/// <summary>
@@ -52,18 +65,40 @@ namespace Game
 
 		/// <summary>
 		/// Gets or sets the position.
+		/// 
+		/// Setter sets position for all attached lines as well.
 		/// </summary>
 		/// <value>The position.</value>
 		public Vector2 Position
 		{
 			get
 			{
-				return position;
+				return Circle.transform.position;
 			}
 
 			set
 			{
-				position = value;
+				Circle.transform.position = value;
+
+				// Changing position for the attached lines as well
+				foreach (GameObject line in attachedLines)
+				{
+					string[] pkts = line.name.Split(';');
+					LineRenderer l = line.GetComponent<LineRenderer>();;
+
+					if (int.Parse(pkts[0]) == ID)
+					{
+						l.SetPosition(0, value);
+					}
+					else if (int.Parse(pkts[1]) == ID)
+					{
+						l.SetPosition(1, value);
+					}
+					else
+					{
+						Debug.Log("Error finding line to circle ID for line: " + line.name);
+					}
+				}
 			}
 		}
 
@@ -75,11 +110,19 @@ namespace Game
 		{
 			get
 			{
-				GameObject[] lines = new GameObject[attachedLines.Count];
-				for (int i = 0; i < attachedLines.Count; i++)
-					lines[i++] = attachedLines[i];
-				
-				return lines;
+				return attachedLines.ToArray();
+			}
+		}
+
+		/// <summary>
+		/// Gets the identifier. Should be the same as the index in table.
+		/// </summary>
+		/// <value>The identifier.</value>
+		public int ID
+		{
+			get
+			{
+				return id;
 			}
 		}
 	}
