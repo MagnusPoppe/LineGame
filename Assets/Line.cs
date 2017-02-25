@@ -5,6 +5,9 @@ namespace Game
 {
 	public class Line
 	{
+		// Distance to compensate for the bad precision of floats.
+		const float MINIMIUM_TRESHOLD = 0.1f;
+
 		float s; 
 		float m;
 
@@ -82,25 +85,24 @@ namespace Game
 				return Vector2.zero;
 			}
 
-			float minimum = 0.3f; // Distance to compensate for the bad precision of floats.
-
+			// Calculating the X and Y values:
 			float x = (o.b * c - b * o.c) / delta;
 			float y = (a * o.c - o.a * c) / delta;
 
 			// Testing if the point is inside a piece of line:
-			if (!( Mathf.Min(x1, x2) + minimum < x && x < Mathf.Max(x1, x2) - minimum))
+			if (!( Mathf.Min(x1, x2) + MINIMIUM_TRESHOLD < x && x < Mathf.Max(x1, x2) - MINIMIUM_TRESHOLD))
 					return Vector2.zero;
 
 			// Testing if the point is inside a piece of the other line:
-			if (!(Mathf.Min(o.x1, o.x2) + minimum < x && x < Mathf.Max(o.x1, o.x2) - minimum ))
+			if (!(Mathf.Min(o.x1, o.x2) + MINIMIUM_TRESHOLD < x && x < Mathf.Max(o.x1, o.x2) - MINIMIUM_TRESHOLD ))
 				return Vector2.zero;
 
 			// Testing if the point is inside a piece of line:
-			if (!(Mathf.Min(y1, y2) + minimum < y && y < Mathf.Max(y1, y2) - minimum))
+			if (!(Mathf.Min(y1, y2) + MINIMIUM_TRESHOLD < y && y < Mathf.Max(y1, y2) - MINIMIUM_TRESHOLD))
 				return Vector2.zero;
 
 			// Testing if the point is inside a piece of the other line:
-			if (!(Mathf.Min(o.y1, o.y2) + minimum < y && y < Mathf.Max(o.y1, o.y2) - minimum))
+			if (!(Mathf.Min(o.y1, o.y2) + MINIMIUM_TRESHOLD < y && y < Mathf.Max(o.y1, o.y2) - MINIMIUM_TRESHOLD))
 				return Vector2.zero;
 
 			// Testing if the intersection is too close to the two edges.

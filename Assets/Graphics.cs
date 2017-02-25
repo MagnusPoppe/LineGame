@@ -1,5 +1,7 @@
 ﻿using System;
 using UnityEngine;
+using Game.Generator;
+using Game.Levels;
 
 namespace Game
 {
@@ -25,6 +27,20 @@ namespace Game
 			this.darkCircle = darkCircle;
 			this.lineMaterial = line;
 			this.colors = colors;
+		}
+
+		public Pkt[] CreateLevel(Level level, string seed)
+		{
+			// Creating pkts to place circles:
+			seed += (char)UnityEngine.Random.Range(0, 128);
+			Vector2[] positions = GameManager.GeneratePoints(seed, level.Pkts);
+
+			Pkt[] circles = AddCircles(positions);
+
+			foreach (Connection c in level.Lines)
+				AddLine(circles[c.From], circles[c.To]);
+
+			return circles;
 		}
 
 		/// <summary>
@@ -90,6 +106,7 @@ namespace Game
 			renderer.useWorldSpace = true;
 			renderer.sortingLayerName = "Line";
 			renderer.material = lineMaterial;
+
 			renderer.startColor = colors.LineClear;
 			renderer.endColor = colors.LineClear;
 

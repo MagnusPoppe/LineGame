@@ -50,7 +50,7 @@ namespace Game
 			level = 0;
 			game = new GameManager(Level_Number_Text, darkCircle, lightCircle, lineMaterial, colorSchema);
 
-			game.NextLevel(level);
+			game.NextLevel();
 			FindIntersections();
 			heldWithMouse = false;
 			levelIsWon = false;
@@ -63,8 +63,8 @@ namespace Game
 			{
 				Debug.Log("You beat level "+level+"!");
 
-				game.NextLevel(++level);
-				levelIsWon = false;
+				ClearLevel();
+				game.NextLevel();
 			}
 
 			if (Input.GetMouseButtonDown(0))
@@ -96,6 +96,16 @@ namespace Game
 					heldWithMouse = false;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Clears the level.
+		/// </summary>
+		private void ClearLevel()
+		{
+			heldWithMouse = false;
+			levelIsWon = false;
+			held = null;
 		}
 
 		private GameObject[] FindAllLines()

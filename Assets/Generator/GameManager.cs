@@ -5,6 +5,8 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
+using Game.Levels;
+
 namespace Game.Generator 
 {
     public class GameManager
@@ -25,6 +27,7 @@ namespace Game.Generator
 		// OTHER:
 		Graphics graphics;
 		private Pkt[] circles;
+		Level level;
 
 		public Pkt[] Circles
 		{
@@ -34,12 +37,16 @@ namespace Game.Generator
 			}
 		}
 
-		public GameManager(Text level, Sprite darkCircle, Sprite lightCircle, Material lineMaterial, ColorSchema colors)
+		public GameManager(Text Txtlevel, Sprite darkCircle, Sprite lightCircle, Material lineMaterial, ColorSchema colors)
 		{
-			Level_Text = level;
+			Level_Text = Txtlevel;
 			this.darkCircle = darkCircle;
 			this.lightCircle = lightCircle;
 			this.lineMaterial = lineMaterial;
+
+			// LEVEL STUFF:
+			level = new Level(1);
+			Debug.Log(level.ToString());
 
 			circleCount = 10;
 			graphics = new Graphics(lightCircle, darkCircle, lineMaterial, colors);
@@ -49,17 +56,25 @@ namespace Game.Generator
 		/// Nexts the level.
 		/// </summary>
 		/// <param name="level">Level.</param>
-		public void NextLevel(int level)
+		public void NextLevel()
 		{
-			// TODO: ClearBoard();
+			// Manages level text
 
-			Level_Text.text = level + "";
+			level.LevelUP();
 
-			seed += (char)UnityEngine.Random.Range(0 , 128);
-			Vector2[] points = GeneratePoints(seed);
+			Level_Text.text = level.No + "";
 
-			// Draw nessesary objects:
-			circles = graphics.AddCircles(points);
+			// Prepares the board to recieve new objects.
+			ClearBoard();
+			seed += (char)UnityEngine.Random.Range(0, 128);
+			circles = graphics.CreateLevel(level, seed);
+		}
+
+		void ClearBoard()
+		{
+			if (circles != null)
+				for (int i = 0; i < circles.Length; i++)
+					circles[i].DestoryAll();	
 		}
 
 		/// <summary>
@@ -67,11 +82,11 @@ namespace Game.Generator
         /// a given seed.
         /// </summary>
         /// <returns>The points.</returns>
-        Vector2[] GeneratePoints( string seed )
+        public static Vector2[] GeneratePoints( string seed, int pktCount )
         {
             System.Random prng = new System.Random(seed.GetHashCode());
-            Vector2[] points = new Vector2[circleCount];
-            for (int i = 0; i < circleCount; i++)
+            Vector2[] points = new Vector2[pktCount];
+            for (int i = 0; i < pktCount; i++)
             {
                 points[i] = new Vector2( prng.Next(0, width), prng.Next(0, height));
             }

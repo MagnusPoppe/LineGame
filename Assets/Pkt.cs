@@ -103,6 +103,24 @@ namespace Game
 		}
 
 		/// <summary>
+		/// Destories all objects attached to this pkt.
+		/// </summary>
+		public void DestoryAll()
+		{
+			foreach (GameObject line in attachedLines)
+			{
+				string[] pkts = line.name.Split(';');
+				if (int.Parse(pkts[0]) == ID)
+				{
+					GameObject.Destroy(line);
+				}
+			}
+			GameObject.Destroy(circle);
+			attachedLines = null;
+			circle = null;
+		}
+
+		/// <summary>
 		/// Gets the attached lines.
 		/// </summary>
 		/// <value>The attached lines.</value>
