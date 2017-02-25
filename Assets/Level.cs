@@ -6,8 +6,9 @@ namespace Game
 	{
 
 		int level;
-		int circleCount;
+
 		int lineCount;
+		int circleCount;
 
 		public Level(int level)
 		{
@@ -16,8 +17,7 @@ namespace Game
 
 		public void nextLevel()
 		{
-			
-			
+			level++;
 		}
 	}
 }

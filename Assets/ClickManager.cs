@@ -3,31 +3,46 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Game.Generator;
+using UnityEngine.UI;
 
 namespace Game
 {
 	public class ClickManager : MonoBehaviour
 	{
+		// DEFINITION FOR COLOR SCHEMAS:
+		const ColorSchema.Schemas PRE_DEFINED_SCHEMA = ColorSchema.Schemas.DARK_GREEN;
+		public bool colorcodeLines = true;
+		public ColorSchema colorSchema;
 
 		private bool heldWithMouse;
 		private bool levelIsWon;
 
 		private GameManager game;
 		private GameObject graphics;
+		private Camera mainCamera;
 
 		private GameObject held;
 		private GameObject[] childLines;
 
 		[Range(0, 15)] 
 		public int level = 1;
-
 		public bool canWin = false;
+
+		public Text Level_Number_Text;
+		public Text Level_Text_Text;
 
 		// Use this for initialization
 		void Start()
 		{
-			GameObject GameManager = GameObject.Find("GameManager");
-			game = GameManager.GetComponent<GameManager>();
+			mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+			game  = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+			colorSchema = new ColorSchema(PRE_DEFINED_SCHEMA, colorcodeLines);
+			//game.SetColorSchema(colorSchema);
+			Level_Number_Text.color = colorSchema.Font;
+			Level_Text_Text.color = colorSchema.Font;
+
+			mainCamera.backgroundColor = colorSchema.Background;
 
 			level = 0;
 
@@ -45,7 +60,6 @@ namespace Game
 				Debug.Log("You beat level "+level+"!");
 
 				game.NextLevel(++level);
-
 				levelIsWon = false;
 			}
 
@@ -89,7 +103,7 @@ namespace Game
 		/// <param name="g">The green component.</param>
 		private GameObject[] FindChildrenLines(GameObject g)
 		{
-			GameObject[] l = GameObject.FindGameObjectsWithTag("Line");
+			GameObject[] l = game.lines;
 			GameObject[] temp = new GameObject[l.Length];
 			int j = 0;
 			for (int i = 0; i < l.Length; i++)
@@ -114,7 +128,7 @@ namespace Game
 		/// </summary>
 		private void FindIntersections()
 		{
-			GameObject[] all = GameObject.FindGameObjectsWithTag("Line");
+			GameObject[] all = game.lines;
 			Line[] line = new Line[all.Length];
 
 			for (int i = 0; i < all.Length; i++)
@@ -136,15 +150,15 @@ namespace Game
 					{
 
 						// FOUND INTERSECTION:
-						ColorLine(all[i].GetComponent<LineRenderer>(), Color.magenta);
-						ColorLine(all[j].GetComponent<LineRenderer>(), Color.magenta);
+						ColorLine(all[i].GetComponent<LineRenderer>(), colorSchema.LineCrossing);
+						ColorLine(all[j].GetComponent<LineRenderer>(), colorSchema.LineCrossing);
 						intersecting = true;
 						intersectCounter++;
 					}
 				}
 				if (!intersecting)
 				{
-					ColorLine(all[i].GetComponent<LineRenderer>(), Color.green);
+					ColorLine(all[i].GetComponent<LineRenderer>(), colorSchema.LineClear);
 				}
 			}
 
@@ -170,6 +184,7 @@ namespace Game
 		/// </summary>
 		/// <param name="current">Current.</param>
 		/// <param name="corrected">Corrected.</param>
+		// TODO: Skriv om denne. Den er mest sannsynlig grunnen til den store "linjen henger igjen" bugen. 
 		private void correctLinePositions(Vector3 current, Vector3 corrected)
 		{
 			LineRenderer l;
@@ -195,15 +210,18 @@ namespace Game
 			string numbering = GameObjectName.Substring(6, 1);
 			int number = int.Parse(numbering);
 
-			GameObject map = GameObject.Find("GameManager");
-			GameManager gg = map.GetComponent<GameManager>();
-
 			int prev = number - 1;
 
 			if (prev < 0)
 			{
-				prev = gg.circleCount - 1;
-				number = gg.circleCount;
+				prev   = game.circleCount - 1;
+				number = game.circleCount;
+			}
+
+			foreach (GameObject l in game.lines)
+			{
+				if (l.name == "Line (" + prev + "->" + number + ")")
+					return l;
 			}
 
 			return GameObject.Find("Line (" + prev + "->" + number + ")");
@@ -228,7 +246,7 @@ namespace Game
 		private GameObject IdentifyClickedItem()
 		{
 			Vector2 v2 = GetMouseWorld2DPosition();
-			GameObject[] c = GameObject.FindGameObjectsWithTag("Circle");
+			GameObject[] c = game.circles;
 
 			foreach (GameObject go in c)
 				if (clicked(go.transform.position, v2))

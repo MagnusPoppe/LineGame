@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using System;
+using UnityEngine.UI;
 
 namespace Game.Generator 
 {
@@ -20,8 +21,9 @@ namespace Game.Generator
         public Sprite background;
         public Material lineMaterial;
 
+		public Text Level_Text;
+
         GameObject board;
-        GameObject BG;
         public GameObject[] circles;
         public GameObject[] lines;
 
@@ -33,10 +35,27 @@ namespace Game.Generator
 
 		public void NextLevel(int level)
 		{
-			if (BG != null) 
-			{
-				Destroy(BG);
-			}
+			ClearBoard();
+
+			Level_Text.text = level + "";
+
+			// Place random points in grid.
+			circleCount += 1;
+
+			seed += (char)UnityEngine.Random.Range(0 , 128);
+			Vector2[] points = GeneratePoints(seed);
+
+			GraphicsCreator graphics = new GraphicsCreator(circle, lineMaterial);
+
+			// Draw nessesary objects:
+			circles = graphics.AddCircles(points);
+			lines = graphics.AddLines(circles);
+
+			graphics.DrawSpesificLine(0, circleCount - 1);// TODO: Virker ikke.
+		}
+
+		private void ClearBoard()
+		{
 			if (circles != null)
 			{
 				for (int i = 0; i < circles.Length; i++)
@@ -48,18 +67,21 @@ namespace Game.Generator
 					Destroy(circles[i]);
 				}
 			}
-			// Place random points in grid.
-			circleCount += 1;
-			Vector2[] points = GeneratePoints(seed);
-
-			GraphicsCreator graphics = new GraphicsCreator(circle, background, lineMaterial);
-
-			// Draw nessesary objects:
-			BG = graphics.DrawBackground(width, height);
-			circles = graphics.AddCircles(points);
-			lines = graphics.AddLines(circles);
 		}
 
+		public void SetColorSchema(ColorSchema cs)
+		{
+			foreach (GameObject obj in circles)
+			{
+				SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
+				r.color = cs.Circle;
+			}
+			foreach (GameObject obj in lines)
+			{
+				SpriteRenderer r = obj.GetComponent<SpriteRenderer>();
+				r.color = cs.LineClear;
+			}
+		}
   
 
 		/// <summary>
