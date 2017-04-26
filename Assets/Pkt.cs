@@ -13,29 +13,40 @@ namespace Game
 		// All of the attached lines:
 		List<GameObject> attachedLines;
 
+        Vector2 initialPosition;
+
+        public Vector2 InitialPosition
+        {
+            get
+            {
+                return initialPosition;
+            }
+        }
 
 		/// <summary>
 		/// Pkt is a point in the map. Its represented with a Circle sprite.
 		/// Initializes a new instance of the <see cref="T:Game.Pkt"/> class.
 		/// </summary>
 		/// <param name="circle">Circle.</param>
-		public Pkt(GameObject circle)
+        public Pkt(GameObject circle, Vector2 initialPosition)
 		{
 			this.Circle = circle;
 			this.attachedLines = new List<GameObject>();
-		}
+            this.initialPosition = initialPosition;
+        }
 
 		/// <summary>
 		/// Pkt is a point in the map. Its represented with a Circle sprite.
 		/// Initializes a new instance of the <see cref="T:Game.Pkt"/> class.
 		/// </summary>
 		/// <param name="circle">Circle.</param>
-		public Pkt(GameObject circle, int id)
+        public Pkt(GameObject circle, int id, Vector2 initialPosition)
 		{
 			this.Circle = circle;
 			this.id = id;
 			this.attachedLines = new List<GameObject>();
-		}
+            this.initialPosition = initialPosition;
+        }
 
 		/// <summary>
 		/// Adds a line.
@@ -131,6 +142,14 @@ namespace Game
 				return attachedLines.ToArray();
 			}
 		}
+
+        public int Connections
+        {
+            get
+            {
+                return attachedLines.Count;
+            }
+        }
 
 		/// <summary>
 		/// Gets the identifier. Should be the same as the index in table.

@@ -12,7 +12,7 @@ namespace Game
         public const int LAYER_BACKGROUND = 8;
 		public const int LAYER_LINE = 9;
 		public const int LAYER_CIRCLE = 10;
-		public const float CIRCLE_RADIUS = 5.0f;
+		public const float CIRCLE_RADIUS = 50.0f;
 
 		Sprite darkCircle;
 		Sprite lightCirlce;
@@ -29,13 +29,13 @@ namespace Game
 			this.colors = colors;
 		}
 
-		public Pkt[] CreateLevel(Level level, string seed)
+        public Pkt[] CreateLevel(Level level, string seed, Vector2 initialPosition)
 		{
 			// Creating pkts to place circles:
 			seed += (char)UnityEngine.Random.Range(0, 128);
 			Vector2[] positions = GameManager.GeneratePoints(seed, level.Pkts);
 
-			Pkt[] circles = AddCircles(positions);
+            Pkt[] circles = AddCircles(positions, initialPosition);
 
 			foreach (Connection c in level.Lines)
 				AddLine(circles[c.From], circles[c.To]);
@@ -48,12 +48,12 @@ namespace Game
 		/// The points are specified by the "points" array.
 		/// </summary>
 		/// <param name="points">Points in the plane.</param>
-		public Pkt[] AddCircles(Vector2[] points)
+        public Pkt[] AddCircles(Vector2[] points, Vector2 initialPosition)
 		{
 			Pkt[] circles = new Pkt[points.Length];
 
 			for (int i = 0; i < points.Length; i++)
-				circles[i] = AddCircle(i, points[i]);
+                circles[i] = AddCircle(i, points[i], initialPosition);
 
 			for (int i = 1; i <= points.Length; i++)
 			{
@@ -72,10 +72,10 @@ namespace Game
 		/// <returns>The circle.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="position">Pkt.</param>
-		private Pkt AddCircle(int id, Vector2 position)
+        private Pkt AddCircle(int id, Vector2 position, Vector2 initialPosition)
 		{
 			GameObject circle = new GameObject();
-			circle.transform.position = position;
+            circle.transform.position = initialPosition;
 			circle.name = "Circle" + id;
 			circle.tag = "Circle";
 			circle.layer = LAYER_CIRCLE;
@@ -85,7 +85,7 @@ namespace Game
 
 			sprite.sprite = darkCircle;
 
-			return new Pkt(circle, id);
+            return new Pkt(circle, id, position);
 		}
 
 		/// <summary>

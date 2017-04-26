@@ -45,7 +45,7 @@ namespace Game.Levels
 			else if (From == otherto && To == otherfrom)
 				return true;
 			else
-				return false;// No simmularities.
+				return false; // No simmularities.
 	    }
 
 		public override string ToString()

@@ -8,8 +8,6 @@ namespace Game.Levels
 	{
 		int level;
 
-
-
 		// Number of Pkts total in level.
 		int pkts;
 

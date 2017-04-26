@@ -15,10 +15,9 @@ namespace Game.Generator
         const int width = 72;
         const int height = 128;
 		string seed = "Angelica";
-		int circleCount;
 
 		// Graphical elements
-        Sprite lightCircle;
+        public Sprite lightCircle;
         Sprite darkCircle;
         Material lineMaterial;
 		Text Level_Text;
@@ -28,6 +27,7 @@ namespace Game.Generator
 		Graphics graphics;
 		private Pkt[] circles;
 		Level level;
+        public bool LoadingLevel;
 
 		public Pkt[] Circles
 		{
@@ -46,9 +46,9 @@ namespace Game.Generator
 
 			// LEVEL STUFF:
 			level = new Level(1);
+
 			Debug.Log(level.ToString());
 
-			circleCount = 10;
 			graphics = new Graphics(lightCircle, darkCircle, lineMaterial, colors);
 		}
 
@@ -56,7 +56,7 @@ namespace Game.Generator
 		/// Nexts the level.
 		/// </summary>
 		/// <param name="level">Level.</param>
-		public void NextLevel()
+        public void NextLevel(Vector2 camCenter)
 		{
 			// Manages level text
 
@@ -67,7 +67,8 @@ namespace Game.Generator
 			// Prepares the board to recieve new objects.
 			ClearBoard();
 			seed += (char)UnityEngine.Random.Range(0, 128);
-			circles = graphics.CreateLevel(level, seed);
+            circles = graphics.CreateLevel(level, seed, camCenter);
+            LoadingLevel = true; 
 		}
 
 		void ClearBoard()

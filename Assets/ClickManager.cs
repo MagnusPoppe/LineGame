@@ -30,14 +30,43 @@ namespace Game
 		public Sprite lightCircle;
 		public Sprite darkCircle;
 		public Material lineMaterial;
-
+        private Vector2 centerOfScreen;
 		public Text Level_Number_Text;
 		public Text Level_Text_Text;
 
-		// Use this for initialization
+        // APPLICATION SETTINGS:
+        const int MOBILE_FRAMERATE = 30;
+        const int OTHER_FRAMERATE = 60;
+        private int framerate;       
+        const int ANIMATION_SPEED = 2; // Speed in secounds
+
+        const int ANIMATION_NOT_STARTED = -1;
+        const int ANIMATION_ENDED = 0;
+
+        int animationcounter;
+        bool animationComplete;
+
+//----------------------------------------AWAKE()----------------------------------------\\
+		void Awake()
+		{
+            if (Application.isMobilePlatform)
+                framerate = MOBILE_FRAMERATE;
+            else if (Application.isWebPlayer)
+                framerate = OTHER_FRAMERATE;
+            else
+                framerate = OTHER_FRAMERATE;
+
+            Application.targetFrameRate = framerate;
+		}
+
+
+//----------------------------------------START()----------------------------------------\\
 		void Start()
 		{
 			mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+
+            centerOfScreen = GetWorld2DPosition(mainCamera.ViewportToScreenPoint(new Vector3(0.5f, 0.5f, 0)));
+            Debug.Log(centerOfScreen);
 
 			// Setting the colors
 			colorSchema = new ColorSchema(PRE_DEFINED_SCHEMA, colorcodeLines);
@@ -50,54 +79,141 @@ namespace Game
 			level = 0;
 			game = new GameManager(Level_Number_Text, darkCircle, lightCircle, lineMaterial, colorSchema);
 
-			game.NextLevel();
+            game.NextLevel(centerOfScreen);
 			FindIntersections();
 			heldWithMouse = false;
 			levelIsWon = false;
+            animationcounter = -1;
 		}
 
-		// Update is called once per frame
+
+
+//----------------------------------------UPDATE()---------------------------------------\\
 		void Update()
 		{
-			if (levelIsWon)
-			{
-				Debug.Log("You beat level "+level+"!");
+            if (levelIsWon)
+            {
+                if (animationcounter == ANIMATION_NOT_STARTED)
+                {
+                    animationComplete = false;
+                    held = null;
+                    OnInteractionStop();
+                    animationcounter = framerate * ANIMATION_SPEED;
+                }
+                else if (animationcounter <= ANIMATION_ENDED)
+                {
+                    animationComplete = true;
+                    animationcounter = -1;
+                }
+                else
+                {
+                    AnimateAllAgainstCenter();
+                    animationcounter--;
+                }
 
-				ClearLevel();
-				game.NextLevel();
-			}
+                if (animationComplete)
+                {
+                    ClearLevel();
+                    game.NextLevel(centerOfScreen);
+                }
+            }
+            else if (game.LoadingLevel)
+            {
+                if (animationcounter == ANIMATION_NOT_STARTED)
+                {
+                    animationComplete = false;
+                    animationcounter = framerate * ANIMATION_SPEED;
+                }
+                else if (animationcounter <= ANIMATION_ENDED)
+                {
+                    animationComplete = true;
+                    animationcounter = -1;
+                }
+                else
+                {
+                    AnimateToInitialPosition();
+                    animationcounter--;
+                }
 
-			if (Input.GetMouseButtonDown(0))
-			{
-				Pkt g = IdentifyClickedItem();
+                if (animationComplete)
+                {
+                    game.LoadingLevel = false;
+                }
+            }        
 
-				if (g != null) // BRUKER TRYKKER NED KNAPP PÅ ET OBJEKT
-				{
-					g.Position = GetMouseWorld2DPosition();
-					heldWithMouse = true;
-					held = g;
-				}
-			}
-			else if (Input.GetMouseButtonUp(0)) // SIRKEL BLE SLUPPET
-			{
-				heldWithMouse = false;
-				held = null;
-			}
+            else if (Input.touchSupported)
+            {
+                if (Input.touchCount > 0)
+                {
+                    foreach (Touch touch in Input.touches)
+                    {
+                        OnInteractionStart(GetWorld2DPosition(touch.position));
+                    }
+                }
+                else
+                {
+                    OnInteractionStop();
+                }
+            }
+  
+            else if (Input.mousePresent)
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    OnInteractionStart(GetWorld2DPosition(Input.mousePosition));
+                }
+                else if (Input.GetMouseButtonUp(0))
+                {
+                    OnInteractionStop();
+                }
+            }
 
-			if (heldWithMouse) // HVA SKJER NÅR MAN HOLDER ET OBJEKT?
-			{
-				if (held != null)
-				{
-					held.Position = GetMouseWorld2DPosition();
-					FindIntersections();
-				}
-				else
-				{
-					heldWithMouse = false;
-				}
-			}
+            if (heldWithMouse) // HVA SKJER NÅR MAN HOLDER ET OBJEKT?
+            {
+                if (held != null)
+                {
+                    OnInteractionActive(Input.mousePosition);
+                }
+            }
+
+
+			
 		}
 
+//----------------------------------------INPUT METHODS----------------------------------\\
+        private void OnInteractionStart(Vector2 inputPosition)
+        {
+            Pkt g = IdentifyClickedItem();
+
+            if (g != null) // BRUKER TRYKKER NED KNAPP PÅ ET OBJEKT
+            {
+                g.Position = inputPosition;
+                heldWithMouse = true;
+                held = g;
+            }
+        }
+
+        private void OnInteractionActive( Vector2 inputPosition )
+        {
+            if (held != null)
+            {
+                held.Position = GetWorld2DPosition(inputPosition);
+                FindIntersections();
+            }
+            else
+            {
+                heldWithMouse = false;
+            }
+        }
+
+        private void OnInteractionStop()
+        {
+            heldWithMouse = false;
+            held = null;
+        }
+
+
+//----------------------------------------METHODS FOR LINEHANDELING----------------------\\
 		/// <summary>
 		/// Clears the level.
 		/// </summary>
@@ -179,14 +295,17 @@ namespace Game
 			line.endColor = color;
 		}
 
+
+
+//----------------------------------------METHODS FOR POSITIONAL TRACKING:---------------\\
 		/// <summary>
 		/// Gets the mouse world 2D Position.
 		/// </summary>
 		/// <returns>The mouse world2 DP osition.</returns>
-		private Vector2 GetMouseWorld2DPosition()
+        private Vector2 GetWorld2DPosition(Vector2 inputPosition)
 		{
-			float mousex = Input.mousePosition.x;
-			float mousey = Input.mousePosition.y;
+            float mousex = inputPosition.x;
+            float mousey = inputPosition.y;
 			Vector3 v3 = Camera.main.ScreenToWorldPoint(new Vector3(mousex, mousey, 0.0f));
 			return new Vector2(v3.x, v3.y);
 		}
@@ -197,24 +316,37 @@ namespace Game
 		/// <returns>The clicked item.</returns>
 		private Pkt IdentifyClickedItem()
 		{
-			Vector2 v2 = GetMouseWorld2DPosition();
-			Pkt[] c = game.Circles;
+            Vector2 v2 = GetWorld2DPosition(Input.mousePosition);
 
-			foreach (Pkt pkt in c)
-				if (clicked(pkt.Circle.transform.position, v2))
+			float circleRadius = game.lightCircle.pixelsPerUnit;
+
+			foreach (Pkt pkt in game.Circles)
+				if (Vector2.Distance(pkt.Circle.transform.position, v2) < circleRadius)
 					return pkt;
 
 			return null;
 		}
 
-		/// <summary>
-		/// Clicked the specified go and mouse.
-		/// </summary>
-		/// <param name="go">Go.</param>
-		/// <param name="mouse">Mouse.</param>
-		private bool clicked(Vector2 go, Vector2 mouse)
-		{
-			return Vector2.Distance(go, mouse) < GraphicsCreator.CIRCLE_RADIUS;
-		}
+        private void AnimateAllAgainstCenter()
+        {
+            int totalFrames = framerate * ANIMATION_SPEED;
+
+            foreach (Pkt pkt in game.Circles)
+            {
+                float rate = Vector2.Distance(pkt.Position, centerOfScreen)/totalFrames;
+                pkt.Position = Vector2.Lerp(pkt.Position, centerOfScreen, rate);
+            }
+        }
+
+        private void AnimateToInitialPosition()
+        {
+            int totalFrames = framerate * ANIMATION_SPEED;
+
+            foreach (Pkt pkt in game.Circles)
+            {
+                float rate = Vector2.Distance(pkt.Position, pkt.InitialPosition)/totalFrames;
+                pkt.Position = Vector2.Lerp(pkt.Position, pkt.InitialPosition, rate);
+            }
+        }
 	}
 }
