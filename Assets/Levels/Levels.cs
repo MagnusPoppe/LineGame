@@ -37,9 +37,9 @@
         {
             // Level 1 - 10, Easy levels:
                 new BaseLevel(5, 5, 2),     // LEVEL 1
-                new BaseLevel(5, 6, 3),     // LEVEL 2
-                new BaseLevel(6, 6, 3),     // LEVEL 3
-                new BaseLevel(6, 7, 3),     // LEVEL 4
+                new BaseLevel(6, 6, 3),     // LEVEL 2
+                new BaseLevel(7, 7, 3),     // LEVEL 3
+                new BaseLevel(8, 8, 3),     // LEVEL 4
                 new BaseLevel(6, 8, 3),     // LEVEL 5
                 new BaseLevel(7, 8, 3),     // LEVEL 6
                 new BaseLevel(8, 8, 3),     // LEVEL 7

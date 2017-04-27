@@ -29,7 +29,7 @@ namespace Game
 			this.colors = colors;
 		}
 
-        public Pkt[] CreateLevel(Level level, string seed, Vector2 initialPosition)
+        public Pkt[] CreateLevel(LevelManager level, string seed, Vector2 initialPosition)
 		{
 			// Creating pkts to place circles:
 			seed += (char)UnityEngine.Random.Range(0, 128);
@@ -37,8 +37,9 @@ namespace Game
 
             Pkt[] circles = AddCircles(positions, initialPosition);
 
-			foreach (Connection c in level.Lines)
-				AddLine(circles[c.From], circles[c.To]);
+		    for(int i = 0; i < level.Lines.Length; i++)
+                foreach (Connection c in level.Lines[i])
+                    AddLine(circles[c.From], circles[c.To]);
 
 			return circles;
 		}

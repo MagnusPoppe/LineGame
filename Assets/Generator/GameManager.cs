@@ -26,7 +26,7 @@ namespace Game.Generator
 		// OTHER:
 		Graphics graphics;
 		private Pkt[] circles;
-		Level level;
+		LevelManager level;
         public bool LoadingLevel;
 
 		public Pkt[] Circles
@@ -45,10 +45,7 @@ namespace Game.Generator
 			this.lineMaterial = lineMaterial;
 
 			// LEVEL STUFF:
-			level = new Level(1);
-
-			Debug.Log(level.ToString());
-
+			level = new LevelManager();
 			graphics = new Graphics(lightCircle, darkCircle, lineMaterial, colors);
 		}
 
