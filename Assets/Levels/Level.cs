@@ -81,7 +81,7 @@ namespace Game.Levels
 
             for (int i = 0; i < numConnections; i++)
             {
-                if (numConnections - pkts > n)
+                if (maximumConnectionsAllowed() >= n)
                 {
                     Connection temp = addNthConnection(n);
                     if (temp != null)
@@ -90,11 +90,15 @@ namespace Game.Levels
                     }
                     else // Cannot add a nth connection. Increasing N to try again.
                     {
-                        n++;
-                        i--;
+                            n++;
                     }
                 }
             }
+        }
+
+        private int maximumConnectionsAllowed()
+        {
+            return level % 5 + 2;
         }
 
         private int FindMinConnections()
@@ -143,7 +147,7 @@ namespace Game.Levels
             int tooBigCounter = 0;
             for (int i = 0; i < points.Length; i++)
             {
-                if ((float)points[i] / (float)pkts > 0.50f) // Added if more than
+                if ( (points[i] / (float) pkts)  > 0.50f) // Added if more than percent added
                     tooBigCounter++;
             }
 

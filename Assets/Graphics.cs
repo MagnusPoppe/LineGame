@@ -109,6 +109,8 @@ namespace Game
 
 			renderer.startColor = colors.LineClear;
 			renderer.endColor = colors.LineClear;
+		    renderer.startWidth = 1.5f;
+		    renderer.endWidth = 1.5f;
 
 			Vector3[] pos = { pkt1.Position, pkt2.Position };
 			line.transform.parent = pkt1.Circle.transform;

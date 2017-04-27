@@ -82,7 +82,6 @@ namespace Game
 			game = new GameManager(Level_Number_Text, darkCircle, lightCircle, lineMaterial, colorSchema);
 
             game.NextLevel(centerOfScreen);
-			FindIntersections();
 			heldWithMouse = false;
 			levelIsWon = false;
             animationcounter = -1;
@@ -122,6 +121,7 @@ namespace Game
             }
             else if (game.LoadingLevel)
             {
+
                 if (animationcounter == ANIMATION_NOT_STARTED)
                 {
                     animationComplete = false;
@@ -136,12 +136,14 @@ namespace Game
                 {
                     AnimateAllToInitialPosition();
                     animationcounter--;
+
+                    // Updating intersections as we animate.
+                    FindIntersections(false);
                 }
 
                 if (animationComplete)
                 {
                     game.LoadingLevel = false;
-                    FindIntersections();
                 }
             }
             else if (Input.touchSupported)
@@ -177,9 +179,6 @@ namespace Game
                     OnInteractionActive(Input.mousePosition);
                 }
             }
-
-
-			
 		}
 
 //----------------------------------------INPUT METHODS----------------------------------\\
@@ -200,7 +199,7 @@ namespace Game
             if (held != null)
             {
                 held.Position = GetWorld2DPosition(inputPosition);
-                FindIntersections();
+                FindIntersections(true);
             }
             else
             {
@@ -244,7 +243,8 @@ namespace Game
 		/// <summary>
 		/// Tests for intersections between all lines.
 		/// </summary>
-		private void FindIntersections()
+		/// <param name="tryWinning"> True if wincase should be tested for.</param>
+		private void FindIntersections( bool tryWinning )
 		{
 			GameObject[] all = FindAllLines();
 			Line[] line = new Line[all.Length];
@@ -281,7 +281,7 @@ namespace Game
 				}
 			}
 
-			if (canWin)
+			if (canWin && tryWinning)
 				if (intersectCounter == 0) 
 					levelIsWon = true;
 		}
