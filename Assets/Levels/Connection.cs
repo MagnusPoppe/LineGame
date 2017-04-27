@@ -38,14 +38,14 @@ namespace Game.Levels
 			}
 		}
 
-		public bool isSame(int otherfrom, int otherto)
+		public bool Equals(int otherfrom, int otherto)
 		{
 			if (From == otherfrom && To == otherto)
 				return true;
-			else if (From == otherto && To == otherfrom)
+			if (From == otherto && To == otherfrom)
 				return true;
-			else
-				return false; // No simmularities.
+
+		    return false; // No Simularities.
 	    }
 
 		public override string ToString()

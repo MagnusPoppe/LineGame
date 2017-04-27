@@ -1,8 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
 using UnityEngine;
-using Game;
-using Game.
 
 namespace Game
 {

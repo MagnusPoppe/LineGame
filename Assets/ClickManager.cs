@@ -10,7 +10,7 @@ namespace Game
 	public class ClickManager : MonoBehaviour
 	{
 		// DEFINITION FOR COLOR SCHEMAS:
-		const ColorSchema.Schemas PRE_DEFINED_SCHEMA = ColorSchema.Schemas.DARK_GREEN;
+		const ColorSchema.Schemas PRE_DEFINED_SCHEMA = ColorSchema.Schemas.LIGHT_STEEL;
 		public bool colorcodeLines = true;
 		public ColorSchema colorSchema;
 
@@ -37,18 +37,19 @@ namespace Game
         // APPLICATION SETTINGS:
         const int MOBILE_FRAMERATE = 30;
         const int OTHER_FRAMERATE = 60;
-        private int framerate;       
-        const int ANIMATION_SPEED = 2; // Speed in secounds
+	    static int TOTAL_ANIMATED_FRAMES;
 
+	    // Animation:
+	    const int ANIMATION_SPEED = 2; // Speed in secounds
         const int ANIMATION_NOT_STARTED = -1;
         const int ANIMATION_ENDED = 0;
-
         int animationcounter;
         bool animationComplete;
 
 //----------------------------------------AWAKE()----------------------------------------\\
 		void Awake()
 		{
+		    int framerate;
             if (Application.isMobilePlatform)
                 framerate = MOBILE_FRAMERATE;
             else if (Application.isWebPlayer)
@@ -56,6 +57,7 @@ namespace Game
             else
                 framerate = OTHER_FRAMERATE;
 
+		    TOTAL_ANIMATED_FRAMES = framerate * ANIMATION_SPEED;
             Application.targetFrameRate = framerate;
 		}
 
@@ -91,14 +93,14 @@ namespace Game
 //----------------------------------------UPDATE()---------------------------------------\\
 		void Update()
 		{
-            if (levelIsWon)
+            if (levelIsWon && held == null)
             {
                 if (animationcounter == ANIMATION_NOT_STARTED)
                 {
                     animationComplete = false;
                     held = null;
                     OnInteractionStop();
-                    animationcounter = framerate * ANIMATION_SPEED;
+                    animationcounter = TOTAL_ANIMATED_FRAMES;
                 }
                 else if (animationcounter <= ANIMATION_ENDED)
                 {
@@ -115,6 +117,7 @@ namespace Game
                 {
                     ClearLevel();
                     game.NextLevel(centerOfScreen);
+
                 }
             }
             else if (game.LoadingLevel)
@@ -122,7 +125,7 @@ namespace Game
                 if (animationcounter == ANIMATION_NOT_STARTED)
                 {
                     animationComplete = false;
-                    animationcounter = framerate * ANIMATION_SPEED;
+                    animationcounter = TOTAL_ANIMATED_FRAMES;
                 }
                 else if (animationcounter <= ANIMATION_ENDED)
                 {
@@ -131,16 +134,16 @@ namespace Game
                 }
                 else
                 {
-                    AnimateToInitialPosition();
+                    AnimateAllToInitialPosition();
                     animationcounter--;
                 }
 
                 if (animationComplete)
                 {
                     game.LoadingLevel = false;
+                    FindIntersections();
                 }
-            }        
-
+            }
             else if (Input.touchSupported)
             {
                 if (Input.touchCount > 0)
@@ -155,7 +158,6 @@ namespace Game
                     OnInteractionStop();
                 }
             }
-  
             else if (Input.mousePresent)
             {
                 if (Input.GetMouseButtonDown(0))
@@ -329,24 +331,31 @@ namespace Game
 
         private void AnimateAllAgainstCenter()
         {
-            int totalFrames = framerate * ANIMATION_SPEED;
-
             foreach (Pkt pkt in game.Circles)
             {
-                float rate = Vector2.Distance(pkt.Position, centerOfScreen)/totalFrames;
+                float rate = AnimationMovementSpeed(pkt.Position, centerOfScreen);
                 pkt.Position = Vector2.Lerp(pkt.Position, centerOfScreen, rate);
             }
         }
 
-        private void AnimateToInitialPosition()
+        private void AnimateAllToInitialPosition()
         {
-            int totalFrames = framerate * ANIMATION_SPEED;
-
             foreach (Pkt pkt in game.Circles)
             {
-                float rate = Vector2.Distance(pkt.Position, pkt.InitialPosition)/totalFrames;
+                float rate = AnimationMovementSpeed(pkt.Position, pkt.InitialPosition);
                 pkt.Position = Vector2.Lerp(pkt.Position, pkt.InitialPosition, rate);
             }
         }
+
+	    private float AnimationMovementSpeed(Vector2 from, Vector2 to)
+	    {
+	        // Setting speed:
+	        float rate = Vector2.Distance(from,to) / TOTAL_ANIMATED_FRAMES;
+
+	        // TODO: Clamping does not work.
+	        if (rate <= .1f) rate = .1f;
+
+	        return rate;
+	    }
 	}
 }
