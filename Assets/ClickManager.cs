@@ -97,7 +97,6 @@ namespace Game
                 if (animationcounter == ANIMATION_NOT_STARTED)
                 {
                     animationComplete = false;
-                    held = null;
                     OnInteractionStop();
                     animationcounter = TOTAL_ANIMATED_FRAMES;
                 }
@@ -121,7 +120,6 @@ namespace Game
             }
             else if (game.LoadingLevel)
             {
-
                 if (animationcounter == ANIMATION_NOT_STARTED)
                 {
                     animationComplete = false;
@@ -181,7 +179,7 @@ namespace Game
             }
 		}
 
-//----------------------------------------INPUT METHODS----------------------------------\\
+//----------------------------------------INPUT / INTERACTION METHODS----------------------------------\\
         private void OnInteractionStart(Vector2 inputPosition)
         {
             Pkt g = IdentifyClickedItem();

@@ -53,7 +53,7 @@ namespace Game.Generator
 		/// Nexts the level.
 		/// </summary>
 		/// <param name="level">Level.</param>
-        public void NextLevel(Vector2 camCenter)
+        public void NextLevel(Vector2 startPosition)
 		{
 			// Manages level text
 
@@ -64,7 +64,7 @@ namespace Game.Generator
 			// Prepares the board to recieve new objects.
 			ClearBoard();
 			seed += (char)UnityEngine.Random.Range(0, 128);
-            circles = graphics.CreateLevel(level, seed, camCenter);
+            circles = graphics.CreateLevel(level, seed, startPosition);
             LoadingLevel = true; 
 		}
 

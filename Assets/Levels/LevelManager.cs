@@ -93,6 +93,10 @@ namespace Game.Levels
             }
         }
 
+        /// <summary>
+        /// Checks if the current level can be beaten
+        /// </summary>
+        /// <returns>true if the level can be beaten.</returns>
         public bool CanBeBeaten()
         {
             int tooBig = 0;
@@ -108,6 +112,10 @@ namespace Game.Levels
             return tooBig > connections.Length * 0.50f;
         }
 
+        /// <summary>
+        /// To string default method.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string output = "INITIAL PKTS=" + pkts;
@@ -147,6 +155,9 @@ namespace Game.Levels
             set { connections = value; }
         }
 
+        /// <summary>
+        /// Level number.
+        /// </summary>
         public int No
         {
             get { return level; }
