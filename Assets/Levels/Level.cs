@@ -1,6 +1,6 @@
 ﻿namespace Game.Levels
 {
-    public class BaseLevel
+    public class Level
     {
 
         private int pkts;
@@ -23,7 +23,7 @@
         private int connections;
         private int maxConnectionsPerPkt;
 
-        public BaseLevel(int pkts, int connections, int maxConnectionsPerPkt)
+        public Level(int pkts, int connections, int maxConnectionsPerPkt)
         {
             this.pkts = pkts;
             this.connections = connections;

@@ -225,7 +225,7 @@ namespace Game
 			held = null;
 		}
 
-		private GameObject[] FindAllLines()
+	    private GameObject[] FindAllLines()
 		{
 			List<GameObject> lines = new List<GameObject>();
 			for (int i = 0; i < game.Circles.Length; i++)
@@ -240,53 +240,61 @@ namespace Game
 			return lines.ToArray();
 		}
 
-		/// <summary>
-		/// Tests for intersections between all lines.
-		/// </summary>
-		/// <param name="tryWinning"> True if wincase should be tested for.</param>
-		private void FindIntersections( bool tryWinning )
-		{
-			GameObject[] all = FindAllLines();
-			Line[] line = new Line[all.Length];
+	    /// <summary>
+	    /// Tests for intersections between all lines.
+	    /// </summary>
+	    /// <param name="tryWinning"> True if wincase should be tested for.</param>
+	    private void FindIntersections(bool tryWinning)
+	    {
+	        GameObject[] all = FindAllLines();
+	        Line[] line = new Line[all.Length];
 
-			for (int i = 0; i < all.Length; i++)
-			{
-				LineRenderer lr = all[i].GetComponent<LineRenderer>();
-				line[i] = new Line(lr.GetPosition(0), lr.GetPosition(1));
-			}
+	        for (int i = 0; i < all.Length; i++)
+	        {
+	            LineRenderer lr = all[i].GetComponent<LineRenderer>();
+	            line[i] = new Line(lr.GetPosition(0), lr.GetPosition(1));
+	        }
 
-			int intersectCounter = 0;
+	        int intersectCounter = 0;
 
-			for (int i = 0; i < line.Length; i++)
-			{
-				bool intersecting = false;
+	        for (int i = 0; i < line.Length; i++)
+	        {
+	            bool intersecting = false;
 
-				for (int j = 0; j < line.Length; j++)
-				{
-					if (i == j) continue; // Same lines.
+	            for (int j = 0; j < line.Length; j++)
+	            {
+	                if (i == j) continue; // Same lines.
 
-					if (line[i].isIntersecting(line[j]))
-					{
+	                if (line[i].isIntersecting(line[j]))
+	                {
 
-						// FOUND INTERSECTION:
-						ColorLine(all[i].GetComponent<LineRenderer>(), colorSchema.LineCrossing);
-						ColorLine(all[j].GetComponent<LineRenderer>(), colorSchema.LineCrossing);
-						intersecting = true;
-						intersectCounter++;
-					}
-				}
-				if (!intersecting)
-				{
-					ColorLine(all[i].GetComponent<LineRenderer>(), colorSchema.LineClear);
-				}
-			}
+	                    // FOUND INTERSECTION:
+	                    ColorLine(all[i].GetComponent<LineRenderer>(), colorSchema.LineCrossing);
+	                    ColorLine(all[j].GetComponent<LineRenderer>(), colorSchema.LineCrossing);
+	                    intersecting = true;
+	                    intersectCounter++;
+	                }
+	            }
+	            if (!intersecting)
+	            {
+	                ColorLine(all[i].GetComponent<LineRenderer>(), colorSchema.LineClear);
+	            }
+	        }
 
-			if (canWin && tryWinning)
-				if (intersectCounter == 0) 
-					levelIsWon = true;
-		}
+	        if (canWin && tryWinning)
+	        {
+	            if (intersectCounter == 0)
+	            {
+	                levelIsWon = true;
+	            }
+	        }
+	        else if (!canWin)
+	        {
+	            levelIsWon = false;
+	        }
+	    }
 
-		/// <summary>
+	    /// <summary>
 		/// Colors the line.
 		/// </summary>
 		/// <param name="line">Line.</param>

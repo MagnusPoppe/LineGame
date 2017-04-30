@@ -61,7 +61,7 @@ namespace Game.Levels
             clear();
 
             // Getting data from next level:
-            BaseLevel currentLevel = Levels.GetLevel(level);
+            Level currentLevel = Levels.GetLevel(level);
             pkts = currentLevel.Pkts;
             int remainingConnections = currentLevel.Connections;
             int pkt = 0;
