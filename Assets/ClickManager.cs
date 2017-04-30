@@ -284,13 +284,9 @@ namespace Game
 	        if (canWin && tryWinning)
 	        {
 	            if (intersectCounter == 0)
-	            {
 	                levelIsWon = true;
-	            }
-	        }
-	        else if (!canWin)
-	        {
-	            levelIsWon = false;
+	            else
+	                levelIsWon = false;
 	        }
 	    }
 
