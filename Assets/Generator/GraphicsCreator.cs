@@ -85,7 +85,7 @@ namespace Game.Generator
         /// Draws the lines. The lines are positioned between to nodes.
         /// The index of the line is ordered like this:
         /// Line(1) goes from a circle(1) to cirlce(2). This applies
-        /// every time except when the index of the line is the end
+        /// every playtime except when the index of the line is the end
         /// of the array. Then it points to circle(0).
         /// </summary>
         public GameObject[] DrawLines( GameObject[] c)
@@ -106,7 +106,7 @@ namespace Game.Generator
 		/// Draws and configures the spesific line.
 		/// The index of the line is ordered like this:
 		/// Line(1) goes from a circle(1) to cirlce(2). This applies
-		/// every time.
+		/// every playtime.
 		/// </summary>
 		/// <returns>The spesific line.</returns>
 		/// <param name="from">From.</param>
@@ -144,7 +144,7 @@ namespace Game.Generator
 		/// Draws the lines. The lines are positioned between to nodes.
 		/// The index of the line is ordered like this:
 		/// Line(1) goes from a circle(1) to cirlce(2). This applies
-		/// every time except when the index of the line is the end
+		/// every playtime except when the index of the line is the end
 		/// of the array. Then it points to circle(0).
 		/// </summary>
 		public GameObject[] AddLines(GameObject[] c)

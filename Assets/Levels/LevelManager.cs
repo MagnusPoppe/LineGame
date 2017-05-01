@@ -7,14 +7,20 @@ namespace Game.Levels
 {
     public class LevelManager
     {
-        int level;
+        private int level;
 
         // Number of Pkts total in level.
-        int pkts;
+        private int pkts;
 
         // Connections between pkts:
         List<Connection>[] connections;
 
+        private int timelimit;
+
+        public int TimeLimit
+        {
+            get { return timelimit; }
+        }
 
         // Constants to define each level:
         public const int BASE_NUMBER = 5;
@@ -62,6 +68,7 @@ namespace Game.Levels
 
             // Getting data from next level:
             Level currentLevel = Levels.GetLevel(level);
+            timelimit = currentLevel.TimeLimit;
             pkts = currentLevel.Pkts;
             int remainingConnections = currentLevel.Connections;
             int pkt = 0;

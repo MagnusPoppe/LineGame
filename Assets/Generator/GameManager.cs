@@ -68,6 +68,11 @@ namespace Game.Generator
             LoadingLevel = true; 
 		}
 
+	    public float LevelTimeLimit()
+	    {
+	        return (float)level.TimeLimit;
+	    }
+
 		void ClearBoard()
 		{
 			if (circles != null)

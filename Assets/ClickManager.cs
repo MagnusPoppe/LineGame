@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Timers;
 using UnityEngine;
 
 using Game.Generator;
@@ -21,18 +22,18 @@ namespace Game
 		private GameObject graphics;
 		private Camera mainCamera;
 		private Pkt held;
+	    public int level = 1;
+	    public bool canWin = false;
 
-		[Range(0, 15)] 
-		public int level = 1;
-		public bool canWin = false;
+	    // Timer:
+	    public float playtime;
+	    public Text Timer_Text;
 
 		// Sprites: 
-		public Sprite lightCircle;
-		public Sprite darkCircle;
+		public Sprite lightCircle,darkCircle;
 		public Material lineMaterial;
         private Vector2 centerOfScreen;
-		public Text Level_Number_Text;
-		public Text Level_Text_Text;
+		public Text Level_Text_Text, Level_Number_Text;
 
         // APPLICATION SETTINGS:
         const int MOBILE_FRAMERATE = 30;
@@ -66,16 +67,14 @@ namespace Game
 		void Start()
 		{
 			mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-
             centerOfScreen = GetWorld2DPosition(mainCamera.ViewportToScreenPoint(new Vector3(0.5f, 0.5f, 0)));
-            Debug.Log(centerOfScreen);
 
 			// Setting the colors
 			colorSchema = new ColorSchema(PRE_DEFINED_SCHEMA, colorcodeLines);
 			Level_Number_Text.color = colorSchema.Font;
 			Level_Text_Text.color = colorSchema.Font;
+		    Timer_Text.color = colorSchema.Font;
 			mainCamera.backgroundColor = colorSchema.Background;
-
 
 			// Setting up the game:
 			level = 0;
@@ -92,7 +91,18 @@ namespace Game
 //----------------------------------------UPDATE()---------------------------------------\\
 		void Update()
 		{
-            if (levelIsWon && held == null)
+		    if ( !game.LoadingLevel && !levelIsWon)
+		        if (playtime > 0)
+		            playtime -= Time.deltaTime;
+
+		    Timer_Text.text = (int)playtime+"";
+
+		    if (playtime < 0)
+		    {
+		        // GAME OVER.
+		        Debug.Log("OUT OF TIME..");
+		    }
+            else if (levelIsWon && held == null)
             {
                 if (animationcounter == ANIMATION_NOT_STARTED)
                 {
@@ -115,7 +125,6 @@ namespace Game
                 {
                     ClearLevel();
                     game.NextLevel(centerOfScreen);
-
                 }
             }
             else if (game.LoadingLevel)
@@ -142,6 +151,7 @@ namespace Game
                 if (animationComplete)
                 {
                     game.LoadingLevel = false;
+                    playtime += game.LevelTimeLimit();
                 }
             }
             else if (Input.touchSupported)
