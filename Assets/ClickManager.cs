@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Timers;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 using Game.Generator;
@@ -26,10 +24,10 @@ namespace Game
 	    public bool canWin = false;
 
 	    // Timer:
-	    public float playtime;
-	    public Text Timer_Text;
+	    private float playtime;
+	    private Animator timerAnimator;
 
-		// Sprites: 
+		// Sprites:
 		public Sprite lightCircle,darkCircle;
 		public Material lineMaterial;
         private Vector2 centerOfScreen;
@@ -73,7 +71,6 @@ namespace Game
 			colorSchema = new ColorSchema(PRE_DEFINED_SCHEMA, colorcodeLines);
 			Level_Number_Text.color = colorSchema.Font;
 			Level_Text_Text.color = colorSchema.Font;
-		    Timer_Text.color = colorSchema.Font;
 			mainCamera.backgroundColor = colorSchema.Background;
 
 			// Setting up the game:
@@ -84,6 +81,7 @@ namespace Game
 			heldWithMouse = false;
 			levelIsWon = false;
             animationcounter = -1;
+		    timerAnimator = GameObject.Find("timer").GetComponent<Animator>();
 		}
 
 
@@ -91,11 +89,11 @@ namespace Game
 //----------------------------------------UPDATE()---------------------------------------\\
 		void Update()
 		{
+		    // Updating timer if the game is running
 		    if ( !game.LoadingLevel && !levelIsWon)
+		        timerAnimator.StartPlayback();
 		        if (playtime > 0)
 		            playtime -= Time.deltaTime;
-
-		    Timer_Text.text = (int)playtime+"";
 
 		    if (playtime < 0)
 		    {
@@ -103,57 +101,13 @@ namespace Game
 		        Debug.Log("OUT OF TIME..");
 		    }
             else if (levelIsWon && held == null)
-            {
-                if (animationcounter == ANIMATION_NOT_STARTED)
-                {
-                    animationComplete = false;
-                    OnInteractionStop();
-                    animationcounter = TOTAL_ANIMATED_FRAMES;
-                }
-                else if (animationcounter <= ANIMATION_ENDED)
-                {
-                    animationComplete = true;
-                    animationcounter = -1;
-                }
-                else
-                {
-                    AnimateAllAgainstCenter();
-                    animationcounter--;
-                }
-
-                if (animationComplete)
-                {
-                    ClearLevel();
-                    game.NextLevel(centerOfScreen);
-                }
-            }
+		    {
+		        Animate(false);
+		    }
             else if (game.LoadingLevel)
-            {
-                if (animationcounter == ANIMATION_NOT_STARTED)
-                {
-                    animationComplete = false;
-                    animationcounter = TOTAL_ANIMATED_FRAMES;
-                }
-                else if (animationcounter <= ANIMATION_ENDED)
-                {
-                    animationComplete = true;
-                    animationcounter = -1;
-                }
-                else
-                {
-                    AnimateAllToInitialPosition();
-                    animationcounter--;
-
-                    // Updating intersections as we animate.
-                    FindIntersections(false);
-                }
-
-                if (animationComplete)
-                {
-                    game.LoadingLevel = false;
-                    playtime += game.LevelTimeLimit();
-                }
-            }
+		    {
+		        Animate(true);
+		    }
             else if (Input.touchSupported)
             {
                 if (Input.touchCount > 0)
@@ -188,6 +142,62 @@ namespace Game
                 }
             }
 		}
+
+	    /// <summary>
+	    /// Runs the animation for either load level or game ended.
+	    /// </summary>
+	    /// <param name="loadLevel"></param>
+	    private void Animate(bool loadLevel)
+	    {
+            if (animationcounter == ANIMATION_NOT_STARTED)
+            {
+                animationComplete = false;
+                if(!loadLevel)
+                    OnInteractionStop();
+                animationcounter = TOTAL_ANIMATED_FRAMES;
+            }
+            else if (animationcounter <= ANIMATION_ENDED)
+            {
+                animationComplete = true;
+                animationcounter = -1;
+            }
+            else
+            {
+                if (loadLevel)
+                {
+                    AnimateAllToInitialPosition();
+
+                    // Updating intersections as we animate loading the level.
+                    FindIntersections(false);
+                }
+                else
+                {
+                    AnimateAllAgainstCenter();
+                }
+                animationcounter--;
+            }
+
+            if (animationComplete)
+            {
+                if (loadLevel)
+                {
+                    game.LoadingLevel = false;
+                    StartTimer();
+                }
+                else
+                {
+                    ClearLevel();
+                    game.NextLevel(centerOfScreen);
+                }
+            }
+	    }
+
+	    private void StartTimer()
+	    {
+	        playtime += game.LevelTimeLimit();
+	        timerAnimator.speed = 1*9.09f;
+	        timerAnimator.StartPlayback();
+	    }
 
 //----------------------------------------INPUT / INTERACTION METHODS----------------------------------\\
         private void OnInteractionStart(Vector2 inputPosition)
